@@ -1,0 +1,3 @@
+Flask==1.1.2
+youtube-dl==2020.7.28
+gunicorn==20.0.4

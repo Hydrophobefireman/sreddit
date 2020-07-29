@@ -1,0 +1,119 @@
+.hoverable:not([disabled]) {
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  transform-style: preserve-3d;
+}
+.hoverable:active:not([disabled]),
+.hoverable:focus:not([disabled]),
+.hoverable:hover:not([disabled]) {
+  transform: perspective(1px) scale(1.048) translateZ(0);
+}
+body {
+  font-family: "Open Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  color: #fff;
+}
+button {
+  border: 2px solid #e3e3e3;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 5px;
+  margin-top: 10px;
+  outline: none;
+}
+
+#app-mount {
+  margin-top: auto;
+  text-align: center;
+}
+
+.landing-header {
+  font-size: 2rem;
+  margin-top: 20vh;
+}
+
+.landing-sub-input {
+  width: 60%;
+  padding: 8px;
+  border-radius: 10px;
+  margin-top: 10px;
+  outline: none;
+  border: 2px solid #fff;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+.landing-submit {
+  animation: fade_in 0.3s linear;
+  animation-fill-mode: forwards;
+  min-width: 20%;
+  padding: 4px;
+  border-radius: 20px;
+  outline: none;
+}
+.landing-select {
+  display: inline-block;
+  border: 2px solid #e3e3e3;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+  outline: none;
+  min-width: 20%;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  text-transform: capitalize;
+}
+.selected {
+  background-color: blue;
+  color: white;
+}
+@keyframes fade_in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.slideshow-set-index-container {
+  position: fixed;
+  bottom: 0;
+  background: black;
+  max-height: 20%;
+  max-width: 30%;
+  flex-wrap: wrap;
+  padding-left: 20px;
+  overflow-y: auto;
+  border: 3px solid;
+  border-radius: 10px;
+  transition: 0.3s linear;
+  padding-right: 10px;
+}
+
+.slideshow-set-index {
+  border: none;
+  background: white;
+  padding: 2px;
+  outline: none;
+  margin: 2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50px;
+}
+
+.slideshow-media {
+  max-height: 95vh;
+  max-width: 95vw;
+}
