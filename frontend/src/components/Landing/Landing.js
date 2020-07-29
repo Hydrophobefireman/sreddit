@@ -9,6 +9,7 @@ export default function Landing() {
 
   const onSubmit = useCallback(
     (e) => {
+      if (!value) return;
       const url = getRedditJsonSuffix(
         value,
         sort,

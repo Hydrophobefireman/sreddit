@@ -91,7 +91,27 @@ function SlideShowRenderer({ data, next }) {
   useEffect(() => {
     if (index === data.length - 1) next();
   }, [index, data]);
-  const promise = useCallback(() => getMediaData(data[index]), [data, index]);
+  const onClick = useCallback(
+    (e) => {
+      const clickTarget = e.target;
+      const clickTargetWidth = clickTarget.offsetWidth;
+      const xCoordInClickTarget =
+        e.clientX - clickTarget.getBoundingClientRect().left;
+      let newIndex;
+      if (clickTargetWidth / 2 > xCoordInClickTarget) {
+        newIndex = index - 1;
+        if (newIndex < 0) newIndex = 0;
+      } else {
+        newIndex = index + 1;
+      }
+      setIndex(newIndex);
+    },
+    [index]
+  );
+  const promise = useCallback(() => getMediaData(data[index], onClick), [
+    data,
+    index,
+  ]);
   return (
     <section class="slideshow">
       <div>
@@ -151,7 +171,7 @@ const REGEX_VID = /gif|gifv|mp4|webm/;
  *
  * @param {import("../../reddit_response").RedditApiResponse['data']['children'][0]['data']} data
  */
-async function getMediaData(data) {
+async function getMediaData(data, onClick) {
   if (!data) return null;
   const FORMAT = "%FORMAT%";
   const url = new URL(data.url);
@@ -197,12 +217,24 @@ async function getMediaData(data) {
     availableURLs = _av;
     mediaType = "video";
   }
-  return <Player availableURLs={availableURLs} mediaType={mediaType} />;
+  return (
+    <Player
+      availableURLs={availableURLs}
+      mediaType={mediaType}
+      onClick={onClick}
+    />
+  );
 }
 
-function Player({ availableURLs, mediaType }) {
+function Player({ availableURLs, mediaType, onClick }) {
   try {
-    const play = useCallback((e) => e.target.play(), []);
+    const onElementClick = useCallback(
+      (e) => {
+        e.target.play && e.target.play();
+        onClick(e);
+      },
+      [onClick]
+    );
     // create a new function to force a remount, otherwise <img> tags show previous image
     const Resp = () => (
       <div
@@ -219,14 +251,18 @@ function Player({ availableURLs, mediaType }) {
             preload="auto"
             autoplay
             loop
-            onClick={play}
+            onClick={onElementClick}
           >
             {availableURLs.map((x) => (
               <source {...x} />
             ))}
           </video>
         ) : (
-          <img class="slideshow-media" src={availableURLs[0].src} />
+          <img
+            class="slideshow-media"
+            src={availableURLs[0].src}
+            onClick={onElementClick}
+          />
         )}
       </div>
     );
