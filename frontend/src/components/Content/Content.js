@@ -121,7 +121,7 @@ function SlideShowRenderer({ data, next }) {
               }}
             >
               <span class="hoverable" onClick={toggle}>
-                ✖
+                --
               </span>
             </div>
           </div>
