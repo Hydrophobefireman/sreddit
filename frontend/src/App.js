@@ -9,8 +9,10 @@ import Landing from "./components/Landing/Landing";
 import Content from "./components/Content/Content";
 import "./App.css";
 
-function awakeServer() {
-  return requests.get("/ping").then(() => (
+requests.get("/ping");
+
+function App() {
+  return (
     <main data-app>
       <Router>
         <Path match="/" component={Landing} />
@@ -18,15 +20,6 @@ function awakeServer() {
         <Path match="/r/:sub/" component={Content} />
       </Router>
     </main>
-  ));
-}
-
-function App() {
-  return (
-    <AsyncComponent
-      promise={awakeServer}
-      fallback={() => "waiting for backend to wake up"}
-    />
   );
 }
 render(<App />, document.getElementById("app-mount"));

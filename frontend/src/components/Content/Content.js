@@ -5,25 +5,13 @@ import {
   AsyncComponent,
 } from "@hydrophobefireman/ui-lib";
 
-import { getRedditJsonURL, requests, REDDIT_BASE } from "../../util";
+import {
+  getRedditJsonURL,
+  requests,
+  isValid,
+  getRequiredData,
+} from "../../util";
 import { urlencode, Object_assign as assign } from "@hydrophobefireman/j-utils";
-
-const allowedHosts = ["v.redd.it", "gfycat", "redgifs", "i.redd.it"];
-function isValid(data) {
-  const url = data.url;
-  if (!url) return;
-  try {
-    const u = new URL(url, "https://reddit.com/");
-    return (
-      (u.host.includes("imgur") &&
-        u.pathname.indexOf("/a/") !== 0 &&
-        u.pathname.indexOf("/gallery/") !== 0) ||
-      allowedHosts.some((x) => u.host.includes(x))
-    );
-  } catch {
-    return;
-  }
-}
 
 export default function Content(props) {
   const params = props.params || {};
@@ -50,19 +38,7 @@ function RedditSlideShow({ url, next }) {
       const response = await (await requests.get(url)).json();
       const children = response.data.children;
       setId(response.data.after);
-      const ret = data.concat(
-        children
-          .map((x) => {
-            const d = x.data;
-            const imgURL = d.url_overridden_by_dest;
-            return {
-              permalink: REDDIT_BASE + d.permalink,
-              title: d.title,
-              url: imgURL,
-            };
-          })
-          .filter(isValid)
-      );
+      const ret = data.concat(children.map(getRequiredData).filter(isValid));
       setData(ret);
     } catch (e) {
       console.warn(e);
@@ -82,8 +58,10 @@ function SlideShowRenderer({ data, next }) {
   const toggle = useCallback(() => setShow((s) => !s), []);
   const increment = useCallback(() => setIndex((i) => i + 1), []);
   const decrement = useCallback(() => setIndex((i) => i - 1), []);
+
   useKeyPress("ArrowRight", increment);
   useKeyPress("ArrowLeft", decrement);
+
   const onButtonClick = useCallback((e) => {
     const idx = +e.target.dataset.idx;
     setIndex(idx);
@@ -98,7 +76,7 @@ function SlideShowRenderer({ data, next }) {
       const xCoordInClickTarget =
         e.clientX - clickTarget.getBoundingClientRect().left;
       let newIndex;
-      if (clickTargetWidth / 2 > xCoordInClickTarget) {
+      if (clickTargetWidth / 4 > xCoordInClickTarget) {
         newIndex = index - 1;
         if (newIndex < 0) newIndex = 0;
       } else {

@@ -36,3 +36,30 @@ export function getRedditJsonURL(name, params, query) {
   const f = getRedditJsonSuffix(name, params, query, true);
   return REDDIT_BASE + f;
 }
+
+const allowedHosts = ["v.redd.it", "gfycat", "redgifs", "i.redd.it"];
+export function isValid(data) {
+  const url = data.url;
+  if (!url) return;
+  try {
+    const u = new URL(url, "https://reddit.com/");
+    return (
+      (u.host.includes("imgur") &&
+        u.pathname.indexOf("/a/") !== 0 &&
+        u.pathname.indexOf("/gallery/") !== 0) ||
+      allowedHosts.some((x) => u.host.includes(x))
+    );
+  } catch {
+    return;
+  }
+}
+
+export function getRequiredData(x) {
+  const d = x.data;
+  const imgURL = d.url_overridden_by_dest;
+  return {
+    permalink: REDDIT_BASE + d.permalink,
+    title: d.title,
+    url: imgURL,
+  };
+}
