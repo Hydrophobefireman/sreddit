@@ -70,19 +70,24 @@ function SlideShowRenderer({ data, next }) {
     if (index === data.length - 1) next();
   }, [index, data]);
   const onClick = useCallback(
+    /**
+     * @param {MouseEvent} e
+     */
     (e) => {
+      /** @type {HTMLElement} */
       const clickTarget = e.target;
       const clickTargetWidth = clickTarget.offsetWidth;
-      const xCoordInClickTarget =
-        e.clientX - clickTarget.getBoundingClientRect().left;
+      const rect = clickTarget.getBoundingClientRect();
+      const xCoordInClickTarget = e.clientX - rect.left;
+
       let newIndex;
       if (clickTargetWidth / 4 > xCoordInClickTarget) {
         newIndex = index - 1;
         if (newIndex < 0) newIndex = 0;
-      } else {
+      } else if ((clickTargetWidth * 3) / 4 < xCoordInClickTarget) {
         newIndex = index + 1;
       }
-      setIndex(newIndex);
+      newIndex != null && setIndex(newIndex);
     },
     [index]
   );
