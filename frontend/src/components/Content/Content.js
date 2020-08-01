@@ -11,7 +11,11 @@ import {
   isValid,
   getRequiredData,
 } from "../../util";
-import { urlencode, Object_assign as assign } from "@hydrophobefireman/j-utils";
+import {
+  urlencode,
+  Object_assign as assign,
+  FakeSet,
+} from "@hydrophobefireman/j-utils";
 
 export default function Content(props) {
   const params = props.params || {};
@@ -91,14 +95,24 @@ function SlideShowRenderer({ data, next }) {
     },
     [index]
   );
-  const promise = useCallback(() => getMediaData(data[index], onClick), [
-    data,
-    index,
-  ]);
+  const promise = useCallback(
+    (value, preload) => getMediaData(value, onClick, preload),
+    [data, index]
+  );
   return (
     <section class="slideshow">
       <div>
-        <AsyncComponent promise={promise} fallback={() => "Loading.."} />
+        <AsyncComponent
+          promise={() => promise(data[index])}
+          fallback={() => "Loading.."}
+        />
+        <>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <AsyncComponent
+              promise={() => promise(data[index + i + 1], true)}
+            />
+          ))}
+        </>
       </div>
       {data && data.length > 0 && (
         <div class="slideshow-set-index-container">
@@ -150,11 +164,12 @@ function SlideShowRenderer({ data, next }) {
   );
 }
 const REGEX_VID = /gif|gifv|mp4|webm/;
+const preloadedSet = new FakeSet();
 /**
  *
  * @param {import("../../reddit_response").RedditApiResponse['data']['children'][0]['data']} data
  */
-async function getMediaData(data, onClick) {
+async function getMediaData(data, onClick, preload) {
   if (!data) return null;
   const FORMAT = "%FORMAT%";
   const url = new URL(data.url);
@@ -205,11 +220,12 @@ async function getMediaData(data, onClick) {
       availableURLs={availableURLs}
       mediaType={mediaType}
       onClick={onClick}
+      preload={preload}
     />
   );
 }
 
-function Player({ availableURLs, mediaType, onClick }) {
+function Player({ availableURLs, mediaType, onClick, preload }) {
   try {
     const onElementClick = useCallback(
       (e) => {
@@ -218,6 +234,15 @@ function Player({ availableURLs, mediaType, onClick }) {
       },
       [onClick]
     );
+    const preloadSrc = availableURLs[0].src;
+    useEffect(() => {
+      console.log("bruh", preloadSrc);
+      if (preload && mediaType !== "video" && !preloadedSet.has(preloadSrc)) {
+        new Image().src = preloadSrc;
+        preloadedSet.add(preloadSrc);
+      }
+    }, [preload, preloadSrc]);
+    if (preload) return;
     // create a new function to force a remount, otherwise <img> tags show previous image
     const Resp = () => (
       <div
