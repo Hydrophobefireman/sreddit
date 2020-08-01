@@ -106,13 +106,13 @@ function SlideShowRenderer({ data, next }) {
           promise={() => promise(data[index])}
           fallback={() => "Loading.."}
         />
-        <>
+        <div hidden>
           {Array.from({ length: 5 }).map((_, i) => (
             <AsyncComponent
               promise={() => promise(data[index + i + 1], true)}
             />
           ))}
-        </>
+        </div>
       </div>
       {data && data.length > 0 && (
         <div class="slideshow-set-index-container">
@@ -236,7 +236,6 @@ function Player({ availableURLs, mediaType, onClick, preload }) {
     );
     const preloadSrc = availableURLs[0].src;
     useEffect(() => {
-      console.log("bruh", preloadSrc);
       if (preload && mediaType !== "video" && !preloadedSet.has(preloadSrc)) {
         new Image().src = preloadSrc;
         preloadedSet.add(preloadSrc);
