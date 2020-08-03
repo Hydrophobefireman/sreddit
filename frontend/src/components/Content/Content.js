@@ -176,6 +176,9 @@ async function getMediaData(data, onClick, preload) {
   url.protocol = "https:";
   let mediaType = "img";
   let availableURLs = null;
+  if (preload && preloadedSet.has(url.toString())) return;
+  preloadedSet.add(url.toString());
+
   if (url.host.includes("imgur")) {
     if (REGEX_VID.test(url.pathname.split(".")[1])) {
       url.pathname = url.pathname.replace(/\.\w+$/, FORMAT);
@@ -199,6 +202,7 @@ async function getMediaData(data, onClick, preload) {
     mediaType = "img";
     availableURLs = [{ src: url.toString() }];
   } else if (url.host.includes("gfycat") || url.host.includes("redgifs")) {
+    if (preload) return null;
     const req = `https://api.${url.host.replace("www.", "")}/v1/gfycats/${
       /(gifs\/detail\/)?(\/watch\/)?(\w+)/.exec(url.pathname)[3]
     }`;
