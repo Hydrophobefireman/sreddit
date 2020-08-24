@@ -57,7 +57,9 @@ def generate_response(url, request_url):
             yield b" "
             sleep(0.2)
 
-        proc = subprocess.Popen(["ffmpeg", "-i", unoptimized_name, file_path])
+        proc = subprocess.Popen(
+            ["ffmpeg", "-i", unoptimized_name, "-movflags", "faststart", file_path]
+        )
 
         while proc.poll() is None:
             yield b" "
