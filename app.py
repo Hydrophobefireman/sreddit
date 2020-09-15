@@ -35,7 +35,7 @@ def generate_response(url, request_url):
 
     return_dict = dumps(
         {
-            "availableURLs": [
+            "source": [
                 {
                     "type": "video/mp4",
                     "src": f"//{urlparse(request_url).netloc}/reddit-media/{fn}",

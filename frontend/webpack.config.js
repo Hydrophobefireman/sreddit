@@ -34,7 +34,7 @@ const cssLoaderOptions = {
     },
     {
       loader: "postcss-loader",
-      options: { ident: "postcss", plugins: [autoPrefixPlugin()] },
+      options: { postcssOptions: { plugins: [autoPrefixPlugin()] } },
     },
   ],
 };
@@ -42,6 +42,17 @@ const contentLoaderOptions = {
   test: /\.(png|jpg|gif|ico|svg)$/,
   use: [{ loader: "url-loader", options: { fallback: "file-loader" } }],
 };
+function getEnvObject(isLegacy) {
+  const prod = !isLegacy;
+  return {
+    arrowFunction: prod,
+    const: prod,
+    destructuring: prod,
+    forOf: prod,
+    dynamicImport: prod,
+    module: prod,
+  };
+}
 function getCfg(isLegacy) {
   return {
     cache: {
@@ -65,7 +76,7 @@ function getCfg(isLegacy) {
     },
     entry: `${__dirname}/src/App.js`,
     output: {
-      ecmaVersion: isLegacy ? 5 : 6,
+      environment: getEnvObject(isLegacy),
       path: `${__dirname}/docs/`,
       filename: `${isLegacy ? "legacy" : "es6"}/[name]-[contenthash].js`,
     },
