@@ -1,5 +1,5 @@
 import { requests } from "../../util";
-import { FakeSet } from "@hydrophobefireman/j-utils";
+import { FakeSet, urlencode } from "@hydrophobefireman/j-utils";
 export const prefetched = new FakeSet();
 
 const FORMAT = "%%F%%";
