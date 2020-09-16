@@ -108,12 +108,14 @@ function ReelItem(props) {
 function Player({ url, alt, isHidden, canLazyLoad }) {
   const [source, setSource] = useState([]);
   const [type, setType] = useState(null);
+  // const [fetching, setFetching] = useState(false);
   useEffect(async () => {
-    if (isHidden) return;
-    const { mediaType, source } = await handler(url);
-    setSource(source);
+    if (isHidden || (source && source.length)) return;
+    // setFetching(true);
+    const { mediaType, source: $source } = await handler(url);
+    setSource($source);
     setType(mediaType);
-  }, [url, isHidden]);
+  }, [url, isHidden, source]);
 
   if (isHidden || type == null) return <loading-spinner />;
   if (type === "img") return <ImgReel source={source} alt={alt} />;

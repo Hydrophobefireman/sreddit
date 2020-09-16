@@ -76,7 +76,10 @@ def generate_response(url, request_url):
             yield b" "
             sleep(0.2)
 
-        remove(unoptimized_name)
+        try:
+            remove(unoptimized_name)
+        except:
+            pass
         yield return_dict
 
 
