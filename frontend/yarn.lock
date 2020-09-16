@@ -885,6 +885,11 @@
   resolved "https://registry.yarnpkg.com/@hydrophobefireman/j-utils/-/j-utils-2.1.1.tgz#60db8904a26084f2092769686859d74d12467234"
   integrity sha512-4ZOe1ltbAbpfyafoaEimFiobwxcoNGuF4Mx6kmLWj0RwVCbTCsOrjSyoZUIn9kJ+0RJd4vycdmhOcvkPmoI2vg==
 
+"@hydrophobefireman/qwc@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@hydrophobefireman/qwc/-/qwc-0.0.6.tgz#e1028ffa3ad0c9f05afb368b03cb10082c84d68e"
+  integrity sha512-ofxA3P5Ztx2y+fvJ6nFrWnuimUSjOphmE+7klrgqpDWgfB1t9wPGo51jmGb/eSMzIhPM1TV98//+/WkkSGE0FQ==
+
 "@hydrophobefireman/ui-lib@^1.4.17":
   version "1.4.17"
   resolved "https://registry.yarnpkg.com/@hydrophobefireman/ui-lib/-/ui-lib-1.4.17.tgz#cca9c1f6aa91a71b7bf83e44dad129d91378f21f"

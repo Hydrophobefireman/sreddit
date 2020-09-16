@@ -15,5 +15,30 @@
     <div id="app-mount">
       <noscript>This App uses JavaScript...</noscript>
     </div>
+    <template is="custom" custom-element="loading-spinner"
+      ><style>
+        .spinner {
+          margin: auto;
+          height: 50px;
+          width: 50px;
+          border-radius: 50%;
+          animation: rotate 0.8s infinite linear;
+          border: 6px solid #fff;
+          border-right-color: #fff;
+          border-bottom-color: #fff;
+          border-left-color: transparent;
+          transition: 0.3s linear;
+        }
+        @keyframes rotate {
+          from {
+            transform: rotate(0);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
+      <div class="spinner"></div
+    ></template>
   </body>
 </html>

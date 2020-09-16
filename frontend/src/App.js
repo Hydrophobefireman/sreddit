@@ -8,7 +8,8 @@ import { requests } from "./util";
 import Landing from "./components/Landing/Landing";
 import Content from "./components/Content/Content";
 import "./App.css";
-
+import { init } from "@hydrophobefireman/qwc";
+init();
 requests.get("/ping");
 
 function App() {

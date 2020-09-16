@@ -47,7 +47,7 @@ export function SlideShowRenderer({ data, loadNext }) {
           <ReelItem
             data={x}
             observerData={observerData}
-            shouldPlay={activeIndex === i}
+            activeIndex={activeIndex}
             index={i}
             intersectionCallback={intersectionCallback}
           />
@@ -69,43 +69,63 @@ export function SlideShowRenderer({ data, loadNext }) {
  * @param {{data:import("../../reddit_response").RedditApiResponse['data']['children'][0]['data']}} props
  */
 function ReelItem(props) {
-  const { data, observerData, shouldPlay, intersectionCallback, index } = props;
+  const {
+    data,
+    observerData,
+    activeIndex,
+    intersectionCallback,
+    index,
+  } = props;
+  const isActiveReelNode = activeIndex === index;
   /** @type {{current:HTMLElement}} */
   const ref = useRef();
   const onIntersectionCallback = useCallback(
-    (e) => e && intersectionCallback(index),
-    [index]
+    (e) => {
+      e && intersectionCallback(index);
+    },
+    [index, ref]
   );
   useObserveNode(ref, onIntersectionCallback, observerData);
   useEffect(() => {
-    shouldPlay &&
+    isActiveReelNode &&
       ref.current &&
       ref.current.scrollIntoView({ behavior: "smooth" });
-  }, [ref, shouldPlay]);
+  }, [ref, isActiveReelNode]);
+  const isHidden = Math.abs(activeIndex - index) > 1;
+  const canLazyLoad = !isHidden && !isActiveReelNode;
   return (
-    <div class="reel-item" ref={ref} data-active-reel-node={shouldPlay}>
-      <Player url={data.url} shouldPlay={shouldPlay} alt={data.title} />
+    <div class="reel-item" ref={ref} data-active-reel-node={isActiveReelNode}>
+      <Player
+        url={data.url}
+        alt={data.title}
+        isHidden={isHidden}
+        canLazyLoad={canLazyLoad}
+      />
     </div>
   );
 }
 
-function Player({ url, alt, shouldPlay }) {
+function Player({ url, alt, isHidden, canLazyLoad }) {
   const [source, setSource] = useState([]);
   const [type, setType] = useState(null);
   useEffect(async () => {
-    if (!shouldPlay) return;
+    if (isHidden) return;
     const { mediaType, source } = await handler(url);
     setSource(source);
     setType(mediaType);
-  }, [url, shouldPlay]);
-  if (!shouldPlay || type == null) return <div>Loading..</div>;
+  }, [url, isHidden]);
+
+  if (isHidden || type == null) return <loading-spinner />;
   if (type === "img") return <ImgReel source={source} alt={alt} />;
+  if (canLazyLoad) return <loading-spinner />;
   if (type === "video") return <VideoReel source={source} />;
   return <div>Unknown Media</div>;
 }
 
 function ImgReel({ source, alt }) {
-  return <img src={source[0].src} alt={alt} class="reel-media" />;
+  return (
+    <img src={source[0].src} alt={alt} loading="lazy" class="reel-media" />
+  );
 }
 
 const onVideoClick = (e) => e.currentTarget.play && e.currentTarget.play();
@@ -114,7 +134,6 @@ function VideoReel({ source }) {
     <video
       class="reel-media"
       preload="auto"
-      // controls
       autoplay
       loop
       onClick={onVideoClick}
