@@ -7,7 +7,14 @@ import {
   useCallback,
 } from "@hydrophobefireman/ui-lib";
 import { prefetchNext } from "./prefetch";
-import { useObserver, useObserveNode, useKeyPress } from "./hooks";
+import {
+  useObserver,
+  useObserveNode,
+  useKeyPress,
+  useViewportSize,
+  useSwipeEvent,
+  directions,
+} from "./hooks";
 import { handler } from "./mediaURLHandler";
 /**
  * @param {{data:import("../../reddit_response").RedditApiResponse['data']['children'][0]['data'][]}} param0
@@ -17,19 +24,33 @@ function createClamper(min, max) {
 }
 
 export function SlideShowRenderer({ data, loadNext }) {
-  const observerData = useObserver();
   const [activeIndex, setActiveIndex] = useState(0);
-  const intersectionCallback = useCallback((index) => setActiveIndex(index));
+  const [height] = useViewportSize();
   const max = Math.max(data ? data.length - 1 : 0, 0);
+  const didIncrement = useRef(false);
   const clamp = createClamper(0, max);
-  useKeyPress(
-    "ArrowUp",
-    useCallback(() => setActiveIndex(clamp(activeIndex - 1)), [activeIndex])
+
+  const $ref = useRef();
+
+  const increment = useCallback(() => {
+    didIncrement.current = true;
+    setActiveIndex((i) => clamp(i + 1));
+  }, [clamp]);
+  const decrement = useCallback(() => {
+    didIncrement.current = false;
+    setActiveIndex((i) => clamp(i - 1));
+  }, [clamp]);
+  const swipCB = useCallback(
+    (swipe) => {
+      if (swipe === directions.UP) increment();
+      else if (swipe === directions.DOWN) decrement();
+    },
+    [increment, decrement]
   );
-  useKeyPress(
-    "ArrowDown",
-    useCallback(() => setActiveIndex(clamp(activeIndex + 1)), [activeIndex])
-  );
+  useSwipeEvent($ref, height / 6, swipCB);
+
+  useKeyPress("ArrowUp", decrement);
+  useKeyPress("ArrowDown", increment);
 
   useEffect(() => prefetchNext(data, activeIndex), [activeIndex, data]);
   useEffect(() => activeIndex >= max && loadNext(), [activeIndex, max]);
@@ -42,14 +63,17 @@ export function SlideShowRenderer({ data, loadNext }) {
           <BackButton />
         </A>
       </nav>
-      <div class="reel-scroll-snap-container">
-        {data.map((x, i) => (
+      <div
+        class="reel-scroll-snap-container"
+        ref={$ref}
+        style={{ overflow: "hidden" }}
+      >
+        {data.slice(0, clamp(activeIndex + 2)).map((x, i) => (
           <ReelItem
             data={x}
-            observerData={observerData}
             activeIndex={activeIndex}
             index={i}
-            intersectionCallback={intersectionCallback}
+            didIncrement={didIncrement}
           />
         ))}
       </div>
@@ -69,32 +93,29 @@ export function SlideShowRenderer({ data, loadNext }) {
  * @param {{data:import("../../reddit_response").RedditApiResponse['data']['children'][0]['data']}} props
  */
 function ReelItem(props) {
-  const {
-    data,
-    observerData,
-    activeIndex,
-    intersectionCallback,
-    index,
-  } = props;
+  const { data, activeIndex, index, didIncrement } = props;
   const isActiveReelNode = activeIndex === index;
   /** @type {{current:HTMLElement}} */
   const ref = useRef();
-  const onIntersectionCallback = useCallback(
-    (e) => {
-      e && intersectionCallback(index);
-    },
-    [index, ref]
-  );
-  useObserveNode(ref, onIntersectionCallback, observerData);
+
   useEffect(() => {
-    isActiveReelNode &&
-      ref.current &&
-      ref.current.scrollIntoView({ behavior: "smooth" });
+    isActiveReelNode && ref.current && ref.current.scrollIntoView();
   }, [ref, isActiveReelNode]);
   const isHidden = Math.abs(activeIndex - index) > 1;
   const canLazyLoad = !isHidden && !isActiveReelNode;
   return (
-    <div class="reel-item" ref={ref} data-active-reel-node={isActiveReelNode}>
+    <div
+      class={[
+        "reel-item",
+        isActiveReelNode
+          ? didIncrement.current
+            ? "move-up"
+            : "move-down"
+          : null,
+      ]}
+      ref={ref}
+      data-active-reel-node={isActiveReelNode}
+    >
       <Player
         url={data.url}
         alt={data.title}

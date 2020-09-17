@@ -73,3 +73,78 @@ export function useObserveNode(ref, callback, [intersectionMap, observer]) {
     };
   }, [ref, callback]);
 }
+
+export const directions = {
+  LEFT: 0,
+  RIGHT: 1,
+  UP: 2,
+  DOWN: 3,
+};
+export function useSwipeEvent(container, threshold, swipeCB) {
+  threshold = threshold || 0;
+  // Swipe Up / Down / Left / Right
+
+  const initialY = useRef();
+
+  const onTouchStart = useCallback(
+    ({ touches }) => {
+      const touch = touches[0];
+      initialY.current = touch.clientY;
+      swipeCB(null);
+    },
+    [swipeCB]
+  );
+
+  const onTouchMove = useCallback(
+    ({ touches }) => {
+      if (initialY.current == null) {
+        return swipeCB(null);
+      }
+      let shouldReset = false;
+      const touch = touches[0];
+
+      const currentY = touch.clientY;
+
+      const diffY = initialY.current - currentY;
+
+      // sliding vertically
+      if (diffY > threshold) {
+        shouldReset = true;
+        swipeCB(directions.UP);
+      } else if (diffY < -threshold) {
+        shouldReset = true;
+        swipeCB(directions.DOWN);
+      }
+
+      if (shouldReset) {
+        initialY.current = null;
+      } else {
+        swipeCB(null);
+      }
+    },
+    [threshold, swipeCB]
+  );
+  useEffect(() => {
+    const current = container.current;
+
+    current.addEventListener("touchstart", onTouchStart, false);
+    current.addEventListener("touchmove", onTouchMove, false);
+    return () => {
+      current.removeEventListener("touchstart", onTouchStart);
+      current.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [container, container.current, onTouchStart, onTouchMove]);
+}
+
+const getDimensions = () => [window.innerHeight, window.innerWidth];
+export function useViewportSize() {
+  const [dimensions, setDimensions] = useState(getDimensions);
+
+  useEffect(() => {
+    const callback = () => setDimensions(getDimensions);
+    addEventListener("resize", callback);
+    return () => removeEventListener("resize", callback);
+  }, []);
+
+  return dimensions;
+}

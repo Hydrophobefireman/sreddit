@@ -131,6 +131,8 @@ button {
 .reel-nav {
   text-align: left;
   position: absolute;
+  left: 1.5vw;
+  z-index: 10;
 }
 .reel-scroll-snap-container {
   scroll-snap-type: y mandatory;
@@ -148,6 +150,36 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  visibility: hidden;
+  transition: transform 0.3s linear;
+}
+
+.reel-item[data-active-reel-node="true"] {
+  position: fixed;
+  visibility: visible;
+  margin: auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+@keyframes placeNormal {
+  from {
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.move-up,
+.move-down {
+  animation: placeNormal 0.3s linear;
+  animation-fill-mode: forwards;
+}
+.move-up {
+  transform: translateY(100vh);
+}
+.move-down {
+  transform: translateY(-100vh);
 }
 
 .reel-media {

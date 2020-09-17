@@ -1,9 +1,4 @@
-import {
-  render,
-  AsyncComponent,
-  Router,
-  Path,
-} from "@hydrophobefireman/ui-lib";
+import { render, Router, Path } from "@hydrophobefireman/ui-lib";
 import { requests } from "./util";
 import Landing from "./components/Landing/Landing";
 import Content from "./components/Content/Content";
