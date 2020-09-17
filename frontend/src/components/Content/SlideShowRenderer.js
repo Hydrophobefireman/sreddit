@@ -8,8 +8,6 @@ import {
 } from "@hydrophobefireman/ui-lib";
 import { prefetchNext } from "./prefetch";
 import {
-  useObserver,
-  useObserveNode,
   useKeyPress,
   useViewportSize,
   useSwipeEvent,
@@ -27,7 +25,7 @@ export function SlideShowRenderer({ data, loadNext }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [height] = useViewportSize();
   const max = Math.max(data ? data.length - 1 : 0, 0);
-  const didIncrement = useRef(false);
+  const didIncrement = useRef(true);
   const clamp = createClamper(0, max);
 
   const $ref = useRef();

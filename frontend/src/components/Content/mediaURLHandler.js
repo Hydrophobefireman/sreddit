@@ -11,6 +11,7 @@ export async function handler(urlString, preload) {
   if (preload && prefetched.has(urlString)) {
     return null;
   }
+  prefetched.add(url);
   const url = new URL(urlString);
   url.protocol = "https:";
 

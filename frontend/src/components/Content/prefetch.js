@@ -16,7 +16,6 @@ async function _prefetch(data) {
         const url = src && src.src;
         if (!url) return;
         new Image().src = url;
-        prefetched.add(url);
       }
     }
   }
