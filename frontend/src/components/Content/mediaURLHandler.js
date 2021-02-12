@@ -1,5 +1,6 @@
-import { requests } from "../../util";
 import { FakeSet, urlencode } from "@hydrophobefireman/j-utils";
+
+import { requests } from "../../util";
 export const prefetched = new FakeSet();
 
 const FORMAT = "%%F%%";
@@ -64,6 +65,12 @@ async function gfyCatsHandler(url, preload) {
     /(gifs\/detail\/)?(\/watch\/)?(\w+)/.exec(url.pathname)[3]
   }`;
   const resp = await (await requests.get(req)).json();
+  if (!resp || !resp.gfyItem) {
+    if (url.pathname.includes("cat")) {
+      return gfyCatsHandler(url.replace("gfycat", "redgifs"), preload);
+    }
+    return {};
+  }
   return {
     mediaType: "video",
     source: [
