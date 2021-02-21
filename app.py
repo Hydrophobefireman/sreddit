@@ -29,21 +29,23 @@ def pong():
     return "pong"
 
 
-def generate_response(url, request_url):
-    fn = f"{enc(url.encode()).decode()}.mp4"
-    file_path = path.join(STATIC_FOLDER, fn)
-
-    return_dict = dumps(
+def get_return_dict(u, fn):
+    return dumps(
         {
             "source": [
                 {
                     "type": "video/mp4",
-                    "src": f"//{urlparse(request_url).netloc}/reddit-media/{fn}",
+                    "src": f"//{urlparse(u).netloc}/reddit-media/{fn}",
                 }
             ]
         }
     ).encode()
 
+
+def generate_response(url, request_url):
+    fn = f"{enc(url.encode()).decode()}.mp4"
+    file_path = path.join(STATIC_FOLDER, fn)
+    return_dict = get_return_dict(request_url, fn)
     if path.isfile(file_path):
         yield return_dict
 
@@ -53,10 +55,14 @@ def generate_response(url, request_url):
         args = ["youtube-dl", url, "-q", "-o", unoptimized_name]
         # print(args)
         proc = subprocess.Popen(args)
-        x = proc.poll()
-        while x is None:
-            yield b" "
-            sleep(0.2)
+
+        while True:
+            x = proc.poll()
+            if x is None:
+                yield b" "
+                sleep(0.2)
+            else:
+                break
         if x != 0:
             yield {"error": "Could not download"}
             return
@@ -74,15 +80,18 @@ def generate_response(url, request_url):
                 file_path,
             ]
         )
-        x = proc.poll()
-        while x is None:
-            yield b" "
-            sleep(0.2)
+
+        while True:
+            x = proc.poll()
+            if x is None:
+                yield b" "
+                sleep(0.2)
+            else:
+                break
         try:
             remove(unoptimized_name)
         except:
             pass
-
         if x != 0:
             yield {"error": "Could not optimize"}
         else:
