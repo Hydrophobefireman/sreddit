@@ -71,16 +71,19 @@ def generate_response(url, request_url):
                 file_path,
             ]
         )
-
-        while proc.poll() is None:
+        x = proc.poll()
+        while x is None:
             yield b" "
             sleep(0.2)
-
         try:
             remove(unoptimized_name)
         except:
             pass
-        yield return_dict
+
+        if x != 0:
+            yield {"error": "No video"}
+        else:
+            yield return_dict
 
 
 @app.route("/media/link/", strict_slashes=False)
