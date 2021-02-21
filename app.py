@@ -53,10 +53,13 @@ def generate_response(url, request_url):
         args = ["youtube-dl", url, "-q", "-o", unoptimized_name]
         # print(args)
         proc = subprocess.Popen(args)
-        while proc.poll() is None:
+        x = proc.poll()
+        while x is None:
             yield b" "
             sleep(0.2)
-
+        if x != 0:
+            yield {"error": "Could not download"}
+            return
         proc = subprocess.Popen(
             [
                 "ffmpeg",
@@ -81,7 +84,7 @@ def generate_response(url, request_url):
             pass
 
         if x != 0:
-            yield {"error": "No video"}
+            yield {"error": "Could not optimize"}
         else:
             yield return_dict
 
