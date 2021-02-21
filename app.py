@@ -29,8 +29,12 @@ def pong():
     return "pong"
 
 
+def dict2bytes(d):
+    return dumps(d).encode()
+
+
 def get_return_dict(u, fn):
-    return dumps(
+    return dict2bytes(
         {
             "source": [
                 {
@@ -39,7 +43,7 @@ def get_return_dict(u, fn):
                 }
             ]
         }
-    ).encode()
+    )
 
 
 def generate_response(url, request_url):
@@ -64,7 +68,7 @@ def generate_response(url, request_url):
             else:
                 break
         if x != 0:
-            yield {"error": "Could not download"}
+            yield dict2bytes({"error": "Could not download"})
             return
         proc = subprocess.Popen(
             [
@@ -93,7 +97,7 @@ def generate_response(url, request_url):
         except:
             pass
         if x != 0:
-            yield {"error": "Could not optimize"}
+            yield dict2bytes({"error": "Could not optimize"})
         else:
             yield return_dict
 
